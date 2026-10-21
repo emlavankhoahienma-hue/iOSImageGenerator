@@ -101,7 +101,7 @@ jobs:
             - **`iOSImageGenerator.app.zip`**: Zipped `.app` bundle for simulator or custom resign toolchains.
             
             ### 📱 Compatibility:
-            - Requires iOS 18.2+
+            - Requires iOS 18.4+
             - Compatible with iPhone 15 Pro, 15 Pro Max, iPhone 16 series, and M-series iPads.
           files: |
             Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa

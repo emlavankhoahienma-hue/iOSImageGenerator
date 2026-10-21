@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import ImagePlayground
 
+@available(iOS 18.4, *)
 enum GenerationStyle: String, CaseIterable, Identifiable {
     case illustration = "Illustration"
     case animation = "Animation"
@@ -29,6 +30,7 @@ enum GenerationStyle: String, CaseIterable, Identifiable {
     }
 }
 
+@available(iOS 18.4, *)
 enum ImageGenerator {
     static func generate(from prompt: String, style: ImagePlaygroundStyle = .illustration) async throws -> UIImage? {
         let creator = try await ImageCreator()

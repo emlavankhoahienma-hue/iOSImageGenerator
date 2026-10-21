@@ -26,6 +26,7 @@ final class ImageSaver: NSObject {
     }
 }
 
+@available(iOS 18.4, *)
 struct PromptImageView: View {
     @State private var prompt: String = ""
     @State private var selectedStyle: GenerationStyle = .illustration
@@ -209,7 +210,7 @@ struct PromptImageView: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
-                            Text("Note: ImagePlayground requires iOS 18.2+ and an Apple Intelligence-compatible device (iPhone 15 Pro, iPhone 16 series, or M-series iPad).")
+                            Text("Note: ImagePlayground requires iOS 18.4+ and an Apple Intelligence-compatible device (iPhone 15 Pro, iPhone 16 series, or M-series iPad).")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
@@ -283,5 +284,9 @@ struct PromptImageView: View {
 }
 
 #Preview {
-    PromptImageView()
+    if #available(iOS 18.4, *) {
+        PromptImageView()
+    } else {
+        Text("Requires iOS 18.4+")
+    }
 }

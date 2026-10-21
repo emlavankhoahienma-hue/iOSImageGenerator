@@ -1,7 +1,7 @@
 # 🧠 Image iOSImageGenerator By VanKhoaSWIFT
 
 [![iOS Sideload Build & Release](https://github.com/emlavankhoahienma-hue/Image-iOSImageGenerator-By-VanKhoaSWIFT/actions/workflows/ios-build.yml/badge.svg)](https://github.com/emlavankhoahienma-hue/Image-iOSImageGenerator-By-VanKhoaSWIFT/actions/workflows/ios-build.yml)
-[![iOS 18.2+](https://img.shields.io/badge/iOS-18.2%2B-blue.svg)](https://developer.apple.com/ios/)
+[![iOS 18.4+](https://img.shields.io/badge/iOS-18.4%2B-blue.svg)](https://developer.apple.com/ios/)
 [![Swift 5.0](https://img.shields.io/badge/Swift-5.0-orange.svg)](https://swift.org)
 [![Xcode 16+](https://img.shields.io/badge/Xcode-16%2B-blueviolet.svg)](https://developer.apple.com/xcode/)
 [![Apple Intelligence](https://img.shields.io/badge/Apple%20Intelligence-ImagePlayground-success.svg)](https://developer.apple.com/apple-intelligence/)
@@ -30,10 +30,10 @@ A native SwiftUI application powered by Apple's on-device **ImagePlayground** fr
 
 | Requirement | Specification |
 |---|---|
-| **OS** | iOS 18.2+ / iPadOS 18.2+ |
+| **OS** | iOS 18.4+ / iPadOS 18.4+ |
 | **Hardware** | Apple Intelligence compatible device (iPhone 15 Pro, iPhone 15 Pro Max, iPhone 16 series, or M-series iPad/Mac) |
-| **Xcode (for building)** | Xcode 16.1+ / Xcode 16.2+ |
-| **Deployment Target** | iOS 18.2 |
+| **Xcode (for building)** | Xcode 16.4+ / Xcode 26+ |
+| **Deployment Target** | iOS 18.4 |
 
 ---
 
@@ -75,7 +75,7 @@ git clone https://github.com/emlavankhoahienma-hue/Image-iOSImageGenerator-By-Va
 cd Image-iOSImageGenerator-By-VanKhoaSWIFT
 open iOSImageGenerator.xcodeproj
 ```
-Select your Apple Development Team in Signing & Capabilities, connect your iPhone running iOS 18.2+, and click **Run**.
+Select your Apple Development Team in Signing & Capabilities, connect your iPhone running iOS 18.4+, and click **Run**.
 
 ### Method 3: Command-line build (unsigned)
 ```bash
