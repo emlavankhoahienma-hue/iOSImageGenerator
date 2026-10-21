@@ -13,7 +13,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case english = "en"
 
     var id: String { rawValue }
-    var flag: String { self == .vietnamese ? "🇻🇳" : "🇬🇧" }
+    var code: String { self == .vietnamese ? "VI" : "EN" }
     var name: String { self == .vietnamese ? "Tiếng Việt" : "English" }
 }
 

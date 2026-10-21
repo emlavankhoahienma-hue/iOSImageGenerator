@@ -64,52 +64,55 @@ jobs:
         run: |
           mkdir -p Payload
           cp -r build/Release-iphoneos/iOSImageGenerator.app Payload/
-          zip -qry -9 "iOSImageGenerator.ipa" Payload/
-          echo "IPA Size: $(du -h iOSImageGenerator.ipa | cut -f1)"
+          zip -qry -9 "StealHex_VN.ipa" Payload/
+          cp "StealHex_VN.ipa" "iOSImageGenerator.ipa"
+          echo "IPA Size: $(du -h StealHex_VN.ipa | cut -f1)"
 
       - name: Package App Bundle (.zip)
         run: |
           cd build/Release-iphoneos
-          zip -qry -9 "${{ github.workspace }}/iOSImageGenerator.app.zip" iOSImageGenerator.app
+          zip -qry -9 "${{ github.workspace }}/StealHex_VN.app.zip" iOSImageGenerator.app
           cd ${{ github.workspace }}
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: iOSImageGenerator-IPA
-          path: iOSImageGenerator.ipa
+          name: StealHex_VN-IPA
+          path: StealHex_VN.ipa
 
       - name: Upload App Bundle Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: iOSImageGenerator-App-Bundle
-          path: iOSImageGenerator.app.zip
+          name: StealHex_VN-App-Bundle
+          path: StealHex_VN.app.zip
 
       - name: Create GitHub Release
         if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')) && github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v2.0.{0}', github.run_number) }}
-          name: ${{ format('Release v2.0.{0} - iOSImageGenerator (iPhone XS ➔ 17 Pro Max)', github.run_number) }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v3.0.{0}', github.run_number) }}
+          name: ${{ format('Release v3.0.{0} - StealHex VN', github.run_number) }}
           body: |
-            ## 🎨 iOSImageGenerator v2.0
+            ## StealHex VN v3.0
             
-            **Tác giả / Author: VanKhoa** ([@emlavankhoahienma-hue](https://github.com/emlavankhoahienma-hue))  
-            *Based on concept by Adi Mizrahi*
+            **Tac gia / Author: VanKhoa** ([@emlavankhoahienma-hue](https://github.com/emlavankhoahienma-hue))  
+            *Dua tren y tuong nguyen ban cua Adi Mizrahi*
             
-            ### 🌟 Tính năng mới / What's New:
-            - 📱 **Hỗ trợ từ iPhone XS ➔ 17 Pro Max** (iOS 17.0+).
-            - 🧠 **Mô hình AI đỉnh cao từ Hugging Face**: FLUX.1 Schnell, FLUX.1 Realism, FLUX Anime, SDXL Turbo.
-            - 🍎 **Apple Intelligence**: Khả dụng trên iPhone 15 Pro, 16, 17 chạy iOS 18.4+.
-            - 🌐 **Hỗ trợ Song ngữ Anh - Việt (Bilingual: Tiếng Việt 🇻🇳 & English 🇬🇧)**.
-            - 📐 **Tùy chọn tỉ lệ khung hình**: 1:1 Vuông, 9:16 Dọc (Hình nền iPhone), 16:9 Ngang.
+            ### Tinh nang moi / What's New:
+            - **Doi ten ung dung / App Name**: StealHex VN.
+            - **Thiet ke toi gian / Minimalist UI**: Loai bo toan bo emoji, phong cach Apple hien dai va tinh te.
+            - **Thuat toan tu dong dinh tuyen mo hinh / Intelligent Prompt Auto-Router**: Tu dong phan tich noi dung cau lenh (Prompt) va lua chon mo hinh toi uu nhat (FLUX.1 Schnell, FLUX Realism, FLUX Anime, FLUX 3D Render, SDXL Turbo).
+            - **Hieu ung AI tra ve / Smooth AI Return Transition**: Hieu ung chuyen canh mem mai va phan hoi tung giai doan xu ly.
+            - **An ban phim thong minh / Tap to Dismiss Keyboard**: Cham vao bat ky vi tri nao ngoai man hinh de an ban phim ngay lap tuc.
+            - **Ho tro song ngu / Bilingual**: Tieng Viet (VI) & English (EN).
             
-            ### 📦 Downloads:
-            - **`iOSImageGenerator.ipa`**: Unsigned IPA ready to sideload via **Sideloadly**, **TrollStore**, **AltStore**, **Scarlet**, or **Feather**.
-            - **`iOSImageGenerator.app.zip`**: Zipped `.app` bundle for simulator or custom resign toolchains.
+            ### Downloads:
+            - **`StealHex_VN.ipa`**: File IPA unsigned cai dat truc tiep qua Sideloadly, TrollStore, AltStore, Scarlet, Feather.
+            - **`StealHex_VN.app.zip`**: File `.app` bundle nguyen ban.
           files: |
+            StealHex_VN.ipa
             iOSImageGenerator.ipa
-            iOSImageGenerator.app.zip
+            StealHex_VN.app.zip
           draft: false
           prerelease: false
         env:

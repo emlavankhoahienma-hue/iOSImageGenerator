@@ -21,28 +21,28 @@ enum AIModelType: String, CaseIterable, Identifiable {
     func displayName(lang: AppLanguage) -> String {
         switch self {
         case .fluxSchnell:
-            return lang == .vietnamese ? "FLUX.1 Schnell (Mạnh nhất)" : "FLUX.1 Schnell (Most Powerful)"
+            return lang == .vietnamese ? "FLUX.1 Schnell (Mạnh nhất)" : "FLUX.1 Schnell (Flagship)"
         case .fluxRealism:
             return lang == .vietnamese ? "FLUX.1 Chân Thực (Cinematic)" : "FLUX.1 Realism (Cinematic)"
         case .fluxAnime:
-            return lang == .vietnamese ? "FLUX Anime / Manga" : "FLUX Anime / Manga"
+            return "FLUX Anime / Manga"
         case .flux3D:
-            return lang == .vietnamese ? "FLUX 3D Render (CGI)" : "FLUX 3D Render (CGI)"
+            return "FLUX 3D Render"
         case .sdxlTurbo:
             return lang == .vietnamese ? "SDXL Turbo (Tốc độ cao)" : "SDXL Turbo (Ultra Fast)"
         case .appleIntelligence:
-            return lang == .vietnamese ? "Apple Intelligence (Thiết bị 15 Pro+)" : "Apple Intelligence (On-Device 15 Pro+)"
+            return "Apple Intelligence"
         }
     }
 
-    var badge: String {
+    var badgeText: String {
         switch self {
-        case .fluxSchnell: return "HF 🔥"
-        case .fluxRealism: return "HF 📸"
-        case .fluxAnime: return "HF 🎌"
-        case .flux3D: return "HF 🧊"
-        case .sdxlTurbo: return "HF ⚡"
-        case .appleIntelligence: return "Apple 🍎"
+        case .fluxSchnell: return "FLUX.1"
+        case .fluxRealism: return "Realism"
+        case .fluxAnime: return "Anime"
+        case .flux3D: return "3D CGI"
+        case .sdxlTurbo: return "Turbo"
+        case .appleIntelligence: return "Apple"
         }
     }
 }
@@ -92,7 +92,6 @@ enum AIService {
                 }
             }
             #endif
-            // If device cannot run Apple Intelligence, fall back to FLUX.1
         }
 
         let dims = aspectRatio.dimensions
@@ -106,7 +105,6 @@ enum AIService {
         }
 
         // High-performance Cloud AI Engine (Hugging Face FLUX.1 / SDXL models)
-        // Works on all devices from iPhone XS to iPhone 17 Pro Max
         return try await callPollinationsEngine(
             prompt: cleanPrompt,
             model: model.rawValue,
@@ -136,7 +134,7 @@ enum AIService {
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 45
-        request.setValue("iOSImageGenerator/2.0 (iPhone; VanKhoa)", forHTTPHeaderField: "User-Agent")
+        request.setValue("StealHexVN/2.0 (iPhone; VanKhoa)", forHTTPHeaderField: "User-Agent")
 
         let (data, response) = try await URLSession.shared.data(for: request)
 

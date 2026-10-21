@@ -19,7 +19,7 @@ final class ImageSaver: NSObject {
         if let error = error {
             onComplete?(false, error.localizedDescription)
         } else {
-            onComplete?(true, "Đã lưu vào Album Ảnh! / Saved to Photos!")
+            onComplete?(true, "Đã lưu vào Album Ảnh / Saved to Photos")
         }
     }
 }
@@ -29,29 +29,36 @@ struct PromptImageView: View {
     @AppStorage("hf_api_token") private var hfToken: String = ""
 
     @State private var prompt: String = ""
-    @State private var selectedModel: AIModelType = .fluxSchnell
     @State private var selectedAspectRatio: AspectRatio = .square
     @State private var image: UIImage? = nil
+    @State private var routedModelResult: ClassificationResult? = nil
     @State private var isLoading = false
+    @State private var loadingStageText = ""
     @State private var errorMessage: String? = nil
     @State private var toastMessage: String? = nil
     @State private var showSettings = false
     @State private var imageSaver = ImageSaver()
 
+    // Animation states
+    @State private var imageReturned = false
+    @State private var timer: Timer? = nil
+
     private var samplePrompts: [String] {
         if langManager.currentLanguage == .vietnamese {
             return [
-                "Mèo phi hành gia trượt ván trong vũ trụ cyberpunk",
-                "Rồng vàng bay trên vịnh Hạ Long lúc hoàng hôn rực rỡ, tranh sơn dầu",
-                "Chân dung thiếu nữ Việt Nam áo dài trắng trong vườn hoa mai ngày Tết, điện ảnh 8k",
-                "Thành phố Sài Gòn tương lai năm 2099 với xe bay và ánh đèn neon"
+                "Chân dung nghệ thuật cô gái Việt Nam trong tà áo dài trắng, ánh sáng điện ảnh",
+                "Mèo phi hành gia trượt ván trong vũ trụ viễn tưởng, phong cách hoạt hình anime",
+                "Mô hình đồ chơi 3D nhân vật hiệp sĩ mini đứng trên bàn gỗ",
+                "Biểu tượng vector tối giản hình chim đại bàng sải cánh",
+                "Thành phố tương lai rực rỡ với xe bay lúc hoàng hôn, tranh sơn dầu"
             ]
         } else {
             return [
-                "An astronaut cat surfing neon waves in a cyberpunk cosmos, 8k",
-                "Golden dragon soaring over misty limestone peaks at sunset, oil painting",
-                "Cinematic photorealistic portrait of an ancient warrior in bamboo forest",
-                "Futuristic Asian metropolis in year 2099 with flying vehicles and neon glow"
+                "Cinematic photorealistic portrait of an ancient warrior in misty bamboo forest",
+                "Cyberpunk cat riding neon waves in cosmos, high quality anime aesthetic",
+                "Stylized 3D render of a cute astronaut character, Blender Pixar style",
+                "Minimalist vector logo emblem of a flying falcon, clean lines",
+                "Futuristic metropolis with flying vehicles at twilight, oil on canvas"
             ]
         }
     }
@@ -59,59 +66,46 @@ struct PromptImageView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 18) {
-                    // Header Card: Author & Compatibility Badge
-                    VStack(spacing: 6) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "sparkles")
-                                .foregroundColor(.yellow)
-                            Text("iOSImageGenerator")
-                                .font(.title3.bold())
-                        }
-
-                        HStack(spacing: 8) {
-                            Text(langManager.tr("Tác giả: VanKhoa", "Author: VanKhoa"))
-                                .font(.caption.bold())
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Color.accentColor.opacity(0.15))
-                                .foregroundColor(.accentColor)
-                                .cornerRadius(6)
-
-                            Text(langManager.tr("iPhone XS ➔ 17 Pro Max", "iPhone XS ➔ 17 Pro Max"))
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Color.green.opacity(0.15))
-                                .foregroundColor(.green)
-                                .cornerRadius(6)
-                        }
+                VStack(spacing: 16) {
+                    // Minimalist Author Tagline (Only ONE title exists in navigationTitle)
+                    HStack {
+                        Label(langManager.tr("Tác giả: VanKhoa", "Author: VanKhoa"), systemImage: "checkmark.seal")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                        Spacer()
                     }
+                    .padding(.horizontal)
                     .padding(.top, 4)
 
-                    // Prompt Input
-                    VStack(alignment: .leading, spacing: 6) {
+                    // Prompt Input Card
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Text(langManager.tr("Câu lệnh mô tả (Prompt)", "Prompt Description"))
                                 .font(.caption.bold())
                                 .foregroundColor(.secondary)
                             Spacer()
                             if !prompt.isEmpty {
-                                Button(langManager.tr("Xóa", "Clear")) {
-                                    prompt = ""
+                                Button(action: { prompt = "" }) {
+                                    Text(langManager.tr("Xóa", "Clear"))
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
-                                .font(.caption)
-                                .foregroundColor(.red)
                             }
                         }
 
-                        HStack(alignment: .top) {
-                            TextField(
-                                langManager.tr("Mô tả hình ảnh bạn muốn tạo (tiếng Việt hoặc tiếng Anh)...", "Describe the image you want to generate..."),
-                                text: $prompt,
-                                axis: .vertical
-                            )
-                            .lineLimit(2...5)
+                        TextField(
+                            langManager.tr("Nhập ý tưởng hình ảnh bạn muốn tạo...", "Enter the image idea you want to create..."),
+                            text: $prompt,
+                            axis: .vertical
+                        )
+                        .lineLimit(2...5)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            hideKeyboard()
                         }
                         .padding(12)
                         .background(Color(.systemGray6))
@@ -123,58 +117,22 @@ struct PromptImageView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(samplePrompts, id: \.self) { sample in
-                                Button(action: { prompt = sample }) {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "lightbulb.fill")
-                                            .font(.caption2)
-                                            .foregroundColor(.yellow)
-                                        Text(sample)
-                                            .font(.caption)
-                                    }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(Color(.systemGray5))
-                                    .foregroundColor(.primary)
-                                    .cornerRadius(14)
+                                Button(action: {
+                                    prompt = sample
+                                    hideKeyboard()
+                                }) {
+                                    Text(sample)
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color(.systemGray5))
+                                        .foregroundColor(.primary)
+                                        .cornerRadius(12)
                                 }
                             }
                         }
                         .padding(.horizontal)
                     }
-
-                    // Model Selector
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(langManager.tr("Mô hình AI (Hugging Face / Apple)", "AI Model (Hugging Face / Apple)"))
-                            .font(.caption.bold())
-                            .foregroundColor(.secondary)
-
-                        Menu {
-                            ForEach(AIModelType.allCases) { model in
-                                Button(action: { selectedModel = model }) {
-                                    HStack {
-                                        Text("\(model.badge) \(model.displayName(lang: langManager.currentLanguage))")
-                                        if selectedModel == model {
-                                            Image(systemName: "checkmark")
-                                        }
-                                    }
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                Text("\(selectedModel.badge) \(selectedModel.displayName(lang: langManager.currentLanguage))")
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(12)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .padding(.horizontal)
 
                     // Aspect Ratio Selector
                     VStack(alignment: .leading, spacing: 6) {
@@ -193,6 +151,7 @@ struct PromptImageView: View {
 
                     // Generate Button
                     Button(action: {
+                        hideKeyboard()
                         Task {
                             await generateImage()
                         }
@@ -205,57 +164,84 @@ struct PromptImageView: View {
                                 Image(systemName: "wand.and.stars")
                             }
                             Text(isLoading
-                                 ? langManager.tr("Đang vẽ tác phẩm AI...", "Generating AI Artwork...")
-                                 : langManager.tr("Tạo ảnh AI", "Generate AI Image"))
+                                 ? langManager.tr("Đang xử lý trí tuệ nhân tạo...", "Processing with AI...")
+                                 : langManager.tr("Tạo ảnh", "Generate"))
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(prompt.trimmingCharacters(in: .whitespaces).isEmpty || isLoading ? Color.gray.opacity(0.4) : Color.accentColor)
+                        .background(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading ? Color.gray.opacity(0.35) : Color.accentColor)
                         .foregroundColor(.white)
                         .cornerRadius(12)
                     }
-                    .disabled(prompt.trimmingCharacters(in: .whitespaces).isEmpty || isLoading)
+                    .disabled(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
                     .padding(.horizontal)
 
                     // Toast message
                     if let toast = toastMessage {
                         Text(toast)
-                            .font(.subheadline.bold())
-                            .foregroundColor(.green)
-                            .padding(.horizontal)
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Color(.systemGray5))
+                            .cornerRadius(8)
                             .transition(.opacity)
                     }
 
-                    // Result View / Loading
+                    // Result View / Progressive Loading Effect
                     if isLoading {
-                        VStack(spacing: 12) {
+                        VStack(spacing: 14) {
                             ProgressView()
-                                .scaleEffect(1.4)
-                            Text(langManager.tr("Mô hình AI đang kết xuất hình ảnh từ câu lệnh của bạn...", "AI model is rendering image from your prompt..."))
+                                .scaleEffect(1.3)
+                            Text(loadingStageText)
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
+                                .animation(.easeInOut, value: loadingStageText)
                         }
-                        .padding(.vertical, 30)
+                        .padding(.vertical, 36)
                     } else if let uiImage = image {
-                        VStack(spacing: 14) {
+                        VStack(spacing: 12) {
+                            // Smart Auto-Router Badge (AI Return Effect indicator)
+                            if let classification = routedModelResult {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "cpu")
+                                        .font(.caption)
+                                    Text(langManager.currentLanguage == .vietnamese ? classification.reasonVI : classification.reasonEN)
+                                        .font(.caption.bold())
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.accentColor.opacity(0.12))
+                                .foregroundColor(.accentColor)
+                                .cornerRadius(8)
+                                .transition(.opacity)
+                            }
+
+                            // AI Generated Image with Smooth Return Transition
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(maxWidth: 350, maxHeight: 420)
+                                .frame(maxWidth: 350, maxHeight: 440)
                                 .cornerRadius(16)
-                                .shadow(color: .black.opacity(0.18), radius: 12, x: 0, y: 6)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.accentColor.opacity(imageReturned ? 0.35 : 0.0), lineWidth: 1.5)
+                                )
+                                .shadow(color: .black.opacity(0.15), radius: 14, x: 0, y: 7)
+                                .scaleEffect(imageReturned ? 1.0 : 0.94)
+                                .opacity(imageReturned ? 1.0 : 0.0)
                                 .padding(.horizontal)
 
-                            // Actions: Share, Save, Copy
+                            // Actions: Share, Save, Copy (clean icons, no emojis)
                             HStack(spacing: 10) {
                                 ShareLink(
                                     item: Image(uiImage: uiImage),
                                     preview: SharePreview(prompt, image: Image(uiImage: uiImage))
                                 ) {
                                     Label(langManager.tr("Chia sẻ", "Share"), systemImage: "square.and.arrow.up")
-                                        .font(.subheadline.bold())
+                                        .font(.subheadline)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
                                         .background(Color(.systemGray6))
@@ -264,7 +250,7 @@ struct PromptImageView: View {
 
                                 Button(action: { saveToPhotos(uiImage) }) {
                                     Label(langManager.tr("Lưu ảnh", "Save"), systemImage: "arrow.down.circle")
-                                        .font(.subheadline.bold())
+                                        .font(.subheadline)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
                                         .background(Color(.systemGray6))
@@ -273,7 +259,7 @@ struct PromptImageView: View {
 
                                 Button(action: { copyToClipboard(uiImage) }) {
                                     Label(langManager.tr("Sao chép", "Copy"), systemImage: "doc.on.doc")
-                                        .font(.subheadline.bold())
+                                        .font(.subheadline)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
                                         .background(Color(.systemGray6))
@@ -282,12 +268,13 @@ struct PromptImageView: View {
                             }
                             .foregroundColor(.primary)
                         }
+                        .padding(.top, 4)
                     } else if let error = errorMessage {
-                        VStack(spacing: 8) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.title)
-                                .foregroundColor(.orange)
-                            Text(langManager.tr("Lỗi khi tạo ảnh", "Could Not Generate Image"))
+                        VStack(spacing: 6) {
+                            Image(systemName: "exclamationmark.triangle")
+                                .font(.title3)
+                                .foregroundColor(.secondary)
+                            Text(langManager.tr("Không thể tạo hình ảnh", "Could Not Generate Image"))
                                 .font(.headline)
                             Text(error)
                                 .font(.caption)
@@ -300,34 +287,40 @@ struct PromptImageView: View {
                         .padding(.horizontal)
                     }
 
-                    Spacer(minLength: 30)
+                    Spacer(minLength: 40)
                 }
             }
-            .navigationTitle("iOSImageGenerator")
+            .contentShape(Rectangle())
+            .onTapGesture {
+                hideKeyboard()
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("StealHex VN")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // Quick Language Toggle: 🇻🇳 / 🇬🇧
+                // Language Toggle (VI / EN)
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
+                        hideKeyboard()
                         withAnimation {
                             langManager.toggleLanguage()
                         }
                     }) {
-                        HStack(spacing: 4) {
-                            Text(langManager.currentLanguage.flag)
-                            Text(langManager.currentLanguage.name)
-                                .font(.caption.bold())
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
+                        Text(langManager.currentLanguage.code)
+                            .font(.caption.bold())
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(6)
                     }
                 }
 
-                // Settings & Author Button
+                // Settings
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showSettings = true }) {
+                    Button(action: {
+                        hideKeyboard()
+                        showSettings = true
+                    }) {
                         Image(systemName: "gearshape")
                     }
                 }
@@ -342,19 +335,34 @@ struct PromptImageView: View {
         let cleanPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanPrompt.isEmpty else { return }
 
+        hideKeyboard()
         isLoading = true
         image = nil
+        imageReturned = false
         errorMessage = nil
         toastMessage = nil
+
+        // Phase 1: Classification & Intent Detection
+        loadingStageText = langManager.tr("Đang phân tích ngữ nghĩa câu lệnh...", "Analyzing prompt semantics...")
+        let classification = PromptClassifier.classify(prompt: cleanPrompt)
+        self.routedModelResult = classification
+
+        // Phase 2: Route to specialized engine
+        try? await Task.sleep(nanoseconds: 600_000_000)
+        loadingStageText = langManager.tr("Kích hoạt mô hình \(classification.model.badgeText)...", "Engaging \(classification.model.badgeText) engine...")
 
         do {
             let result = try await AIService.generateImage(
                 prompt: cleanPrompt,
-                model: selectedModel,
+                model: classification.model,
                 aspectRatio: selectedAspectRatio,
                 hfToken: hfToken
             )
             self.image = result
+            // AI Return Effect: Smooth Spring Transition
+            withAnimation(.spring(response: 0.55, dampingFraction: 0.78)) {
+                self.imageReturned = true
+            }
         } catch {
             self.errorMessage = error.localizedDescription
         }
@@ -363,11 +371,12 @@ struct PromptImageView: View {
     }
 
     private func saveToPhotos(_ uiImage: UIImage) {
+        hideKeyboard()
         imageSaver.saveImage(uiImage) { success, message in
             withAnimation {
                 self.toastMessage = message
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                 withAnimation {
                     if self.toastMessage == message {
                         self.toastMessage = nil
@@ -378,17 +387,20 @@ struct PromptImageView: View {
     }
 
     private func copyToClipboard(_ uiImage: UIImage) {
+        hideKeyboard()
         UIPasteboard.general.image = uiImage
         withAnimation {
-            self.toastMessage = langManager.tr("Đã sao chép vào clipboard!", "Copied to clipboard!")
+            self.toastMessage = langManager.tr("Đã sao chép vào bộ nhớ tạm", "Copied to clipboard")
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation {
-                if self.toastMessage == self.langManager.tr("Đã sao chép vào clipboard!", "Copied to clipboard!") {
-                    self.toastMessage = nil
-                }
+                self.toastMessage = nil
             }
         }
+    }
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 

@@ -15,31 +15,27 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Section: Ngôn ngữ / Language
+                // Ngôn ngữ giao diện
                 Section(header: Text(langManager.tr("Ngôn ngữ giao diện", "Interface Language"))) {
                     Picker(langManager.tr("Ngôn ngữ", "Language"), selection: $langManager.currentLanguage) {
                         ForEach(AppLanguage.allCases) { lang in
-                            HStack {
-                                Text(lang.flag)
-                                Text(lang.name)
-                            }
-                            .tag(lang)
+                            Text("\(lang.code) - \(lang.name)").tag(lang)
                         }
                     }
                     .pickerStyle(.segmented)
                 }
 
-                // Section: Tác giả / Author
+                // Thông tin tác giả
                 Section(header: Text(langManager.tr("Thông tin tác giả", "Author Information"))) {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
-                            Image(systemName: "person.crop.circle.badge.checkmark")
-                                .font(.title2)
-                                .foregroundColor(.accentColor)
+                            Image(systemName: "person.crop.circle")
+                                .font(.title3)
+                                .foregroundColor(.primary)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(langManager.tr("Tác giả: VanKhoa", "Author: VanKhoa"))
                                     .font(.headline)
-                                Text("VanKhoaSWIFT • emlavankhoahienma-hue")
+                                Text("VanKhoaSWIFT • StealHex VN")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -49,53 +45,25 @@ struct SettingsView: View {
                         Divider()
 
                         HStack {
-                            Image(systemName: "heart.fill")
-                                .foregroundColor(.pink)
-                            Text(langManager.tr("Ý tưởng gốc: Adi Mizrahi (@mizadi)", "Original Concept: Adi Mizrahi (@mizadi)"))
+                            Image(systemName: "hand.thumbsup")
+                                .foregroundColor(.secondary)
+                            Text(langManager.tr("Ý tưởng nguyên bản: Adi Mizrahi", "Original Concept: Adi Mizrahi"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
                 }
 
-                // Section: Độ tương thích thiết bị / Device Compatibility
-                Section(header: Text(langManager.tr("Khả năng tương thích", "Device Compatibility"))) {
+                // Thuật toán định tuyến tự động
+                Section(header: Text(langManager.tr("Cơ chế trí tuệ nhân tạo", "AI Routing Engine"))) {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .top) {
-                            Image(systemName: "iphone.gen3")
-                                .foregroundColor(.green)
+                            Image(systemName: "brain")
+                                .foregroundColor(.primary)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(langManager.tr("Hỗ trợ mọi iPhone từ XS ➔ 17 Pro Max", "Supports all iPhones from XS ➔ 17 Pro Max"))
+                                Text(langManager.tr("Tự động phân tích câu lệnh", "Automatic Prompt Analysis"))
                                     .font(.subheadline.bold())
-                                Text(langManager.tr("Chạy trên iOS 17.0 trở lên. Không yêu cầu chip A17 Pro.", "Runs on iOS 17.0+. No A17 Pro required."))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-
-                        Divider()
-
-                        HStack(alignment: .top) {
-                            Image(systemName: "sparkles")
-                                .foregroundColor(.purple)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(langManager.tr("Động cơ AI Hugging Face (FLUX.1)", "Hugging Face AI Engine (FLUX.1)"))
-                                    .font(.subheadline.bold())
-                                Text(langManager.tr("Sử dụng các mô hình AI mạnh nhất thế giới (FLUX.1 Schnell, Realism, Anime) trực tuyến không tốn RAM máy.", "Uses top global open models (FLUX.1 Schnell, Realism, Anime) in cloud without device RAM limits."))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-
-                        Divider()
-
-                        HStack(alignment: .top) {
-                            Image(systemName: "apple.logo")
-                                .foregroundColor(.blue)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Apple Intelligence (On-Device)")
-                                    .font(.subheadline.bold())
-                                Text(langManager.tr("Khả dụng trên iPhone 15 Pro, 16, 17 với iOS 18.4+.", "Available on iPhone 15 Pro, 16, 17 with iOS 18.4+."))
+                                Text(langManager.tr("Hệ thống tự động nhận diện ý định và định tuyến đến 1 trong 5 mô hình AI chuyên biệt (FLUX.1 Schnell, Realism, Anime, 3D Render, SDXL Turbo).", "Automatically detects prompt intent and routes to 1 of 5 specialized AI models (FLUX.1 Schnell, Realism, Anime, 3D Render, SDXL Turbo)."))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -104,22 +72,28 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 }
 
-                // Section: Hugging Face Token (Optional)
+                // Token Hugging Face
                 Section(
                     header: Text(langManager.tr("Tài khoản Hugging Face (Tùy chọn)", "Hugging Face Account (Optional)")),
-                    footer: Text(langManager.tr("Mặc định app sử dụng cụm máy chủ AI miễn phí không cần token. Nếu bạn có Hugging Face User Access Token riêng, bạn có thể dán vào đây.", "By default the app uses free cloud AI endpoints. If you have your own Hugging Face User Token, you can enter it here."))
+                    footer: Text(langManager.tr("Mặc định ứng dụng kết nối trực tiếp đến cụm máy chủ xử lý không tốn phí. Bạn có thể dán mã token Hugging Face nếu muốn.", "By default the application routes requests through high-speed cloud clusters. You may enter your Hugging Face token optionally."))
                 ) {
                     SecureField("hf_xxxxxxxxxxxxxxxxxxxxxx", text: $hfToken)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                 }
 
-                // Section: Giới thiệu / About
-                Section(header: Text(langManager.tr("Về ứng dụng", "About App"))) {
+                // Phiên bản
+                Section(header: Text(langManager.tr("Thông tin ứng dụng", "App Information"))) {
+                    HStack {
+                        Text(langManager.tr("Tên ứng dụng", "App Name"))
+                        Spacer()
+                        Text("StealHex VN")
+                            .foregroundColor(.secondary)
+                    }
                     HStack {
                         Text(langManager.tr("Phiên bản", "Version"))
                         Spacer()
-                        Text("2.0.0 (Build 2026)")
+                        Text("2.5.0")
                             .foregroundColor(.secondary)
                     }
                     HStack {
@@ -130,7 +104,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .navigationTitle(langManager.tr("Cài đặt & Tác giả", "Settings & Author"))
+            .navigationTitle(langManager.tr("Cài đặt", "Settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
