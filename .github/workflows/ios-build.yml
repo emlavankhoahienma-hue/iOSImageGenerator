@@ -93,18 +93,17 @@ jobs:
           tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v3.0.{0}', github.run_number) }}
           name: ${{ format('Release v3.0.{0} - StealHex VN', github.run_number) }}
           body: |
-            ## StealHex VN v3.0
+            ## StealHex VN v3.1
             
             **Tac gia / Author: VanKhoa** ([@emlavankhoahienma-hue](https://github.com/emlavankhoahienma-hue))  
             *Dua tren y tuong nguyen ban cua Adi Mizrahi*
             
-            ### Tinh nang moi / What's New:
-            - **Doi ten ung dung / App Name**: StealHex VN.
-            - **Thiet ke toi gian / Minimalist UI**: Loai bo toan bo emoji, phong cach Apple hien dai va tinh te.
-            - **Thuat toan tu dong dinh tuyen mo hinh / Intelligent Prompt Auto-Router**: Tu dong phan tich noi dung cau lenh (Prompt) va lua chon mo hinh toi uu nhat (FLUX.1 Schnell, FLUX Realism, FLUX Anime, FLUX 3D Render, SDXL Turbo).
-            - **Hieu ung AI tra ve / Smooth AI Return Transition**: Hieu ung chuyen canh mem mai va phan hoi tung giai doan xu ly.
-            - **An ban phim thong minh / Tap to Dismiss Keyboard**: Cham vao bat ky vi tri nao ngoai man hinh de an ban phim ngay lap tuc.
-            - **Ho tro song ngu / Bilingual**: Tieng Viet (VI) & English (EN).
+            ### Tinh nang vuot troi / Breakthrough Features:
+            - **Bo nang cap ngu nghia PromptEngine (On-Device Semantic Translator & Enhancer)**: Tu dong dich thuat va lam giau cac tu khoa tieng Viet va y tuong sang prompt tieng Anh chuan dien anh (optical lighting, 85mm lens, 8k resolution, photorealistic) de mo hinh AI hieu dung va ve cuc dep, khong bi lo mo hay sai chu de.
+            - **Ho tro ket noi May chu ca nhan / Local PC Server (ComfyUI / Automatic1111 / Forge / ngrok)**: Cho phep nguoi dung chay truc tiep mo hinh FLUX.1 Dev, SD 3.5 hoac bat ky model khung nao tren may tinh ca nhan, truyen anh net ve dien thoai (ho tro thoi gian ket xuat tu 30s - 3 phut).
+            - **Bo loc chat luong cao & Negative Prompts**: Tu dong loai bo anh mo, bien dang, hien tuong quang hoc sai lech.
+            - **Ho tro toan dien tu iPhone XS den 18 Pro Max (iOS 17.0+)**: Chay muot tren moi doi may.
+            - **Thiet ke toi gian, khong emoji, an ban phim 1 cham**.
             
             ### Downloads:
             - **`StealHex_VN.ipa`**: File IPA unsigned cai dat truc tiep qua Sideloadly, TrollStore, AltStore, Scarlet, Feather.

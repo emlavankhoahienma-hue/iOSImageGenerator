@@ -26,6 +26,7 @@ final class ImageSaver: NSObject {
 
 struct PromptImageView: View {
     @ObservedObject var langManager = LanguageManager.shared
+    @AppStorage("custom_server_url") private var customServerUrl: String = ""
     @AppStorage("hf_api_token") private var hfToken: String = ""
 
     @State private var prompt: String = ""
@@ -356,7 +357,8 @@ struct PromptImageView: View {
                 prompt: cleanPrompt,
                 model: classification.model,
                 aspectRatio: selectedAspectRatio,
-                hfToken: hfToken
+                hfToken: hfToken,
+                customServerUrl: customServerUrl
             )
             self.image = result
             // AI Return Effect: Smooth Spring Transition

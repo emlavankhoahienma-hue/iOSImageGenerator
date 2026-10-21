@@ -14,6 +14,8 @@ A minimalist, native SwiftUI AI image generation application. Features an intell
 
 ## Tính năng chính / Key Features
 
+- **Bộ nâng cấp ngữ nghĩa câu lệnh (On-Device Semantic PromptEngine)**: Tự động phân tích, dịch thuật và mở rộng các từ khóa tiếng Việt sang tiếng Anh chuyên sâu về nhiếp ảnh và nghệ thuật (ống kính 85mm, ánh sáng điện ảnh, độ phân giải 8K, chất cảm bề mặt da, v.v.) giúp mô hình AI hiểu sâu và tạo ra bức tranh chính xác, sống động.
+- **Hỗ trợ Máy chủ cá nhân / Local PC GPU (Automatic1111 / ComfyUI / Forge / ngrok)**: Cho phép kết nối trực tiếp đến máy tính chạy card đồ họa GPU riêng để chạy các mô hình AI lớn nhất (FLUX.1 Dev, SD 3.5 Large, Midjourney-style) với thời gian tạo từ 30 giây đến 3 phút tùy ý.
 - **Thuật toán tự động định tuyến thông minh (Semantic Auto-Router)**: Người dùng chỉ cần nhập ý tưởng; hệ thống tự động phân loại ngữ cảnh và kích hoạt mô hình tối ưu nhất:
   - *FLUX.1 Schnell*: Nghệ thuật cao cấp, phong cảnh giả tưởng, tranh sơn dầu, bối cảnh phức tạp.
   - *FLUX.1 Realism*: Chụp ảnh chân dung, ảnh đời thường, nhiếp ảnh điện ảnh, chi tiết da và ánh sáng studio.

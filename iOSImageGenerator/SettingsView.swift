@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var langManager = LanguageManager.shared
+    @AppStorage("custom_server_url") private var customServerUrl: String = ""
     @AppStorage("hf_api_token") private var hfToken: String = ""
     @Environment(\.dismiss) private var dismiss
 
@@ -23,6 +24,16 @@ struct SettingsView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                }
+
+                // Máy chủ AI cá nhân (Local PC / ComfyUI / Automatic1111)
+                Section(
+                    header: Text(langManager.tr("Máy chủ AI cá nhân (Tùy chọn)", "Custom AI Server (Optional)")),
+                    footer: Text(langManager.tr("Dành cho người dùng chạy Stable Diffusion / FLUX trên máy tính cá nhân (Automatic1111, ComfyUI, Forge, ngrok). Nhập địa chỉ IP hoặc URL của bạn (ví dụ: http://192.168.1.5:7860). Thời gian xử lý từ 30 giây đến 3 phút tùy sức mạnh GPU.", "For users running local SD/FLUX on PC (Automatic1111, ComfyUI, Forge, ngrok). Enter your IP or URL (e.g. http://192.168.1.5:7860). Processing time 30s - 3m depending on GPU."))
+                ) {
+                    TextField("http://192.168.1.x:7860", text: $customServerUrl)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                 }
 
                 // Thông tin tác giả
@@ -54,32 +65,36 @@ struct SettingsView: View {
                     }
                 }
 
-                // Thuật toán định tuyến tự động
+                // Cơ chế AI
                 Section(header: Text(langManager.tr("Cơ chế trí tuệ nhân tạo", "AI Routing Engine"))) {
                     VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .top) {
+                            Image(systemName: "wand.and.stars")
+                                .foregroundColor(.primary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(langManager.tr("Bộ tối ưu ngữ nghĩa Prompt (PromptEngine)", "Semantic Prompt Engine"))
+                                    .font(.subheadline.bold())
+                                Text(langManager.tr("Tự động dịch thuật và làm giàu ngữ cảnh câu lệnh tiếng Việt thành các thông số kỹ thuật điện ảnh, ánh sáng studio và chi tiết siêu nét 8K.", "Automatically translates and enriches prompts into cinematic lighting, studio optics, and 8K visual parameters."))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        Divider()
+
                         HStack(alignment: .top) {
                             Image(systemName: "brain")
                                 .foregroundColor(.primary)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(langManager.tr("Tự động phân tích câu lệnh", "Automatic Prompt Analysis"))
+                                Text(langManager.tr("Tự động phân loại 5 phong cách", "Auto-Classification"))
                                     .font(.subheadline.bold())
-                                Text(langManager.tr("Hệ thống tự động nhận diện ý định và định tuyến đến 1 trong 5 mô hình AI chuyên biệt (FLUX.1 Schnell, Realism, Anime, 3D Render, SDXL Turbo).", "Automatically detects prompt intent and routes to 1 of 5 specialized AI models (FLUX.1 Schnell, Realism, Anime, 3D Render, SDXL Turbo)."))
+                                Text(langManager.tr("Nhận diện ý định tạo ảnh Chân thực, Anime, 3D Render, hay Đồ họa tối giản để áp dụng bộ lọc phù hợp nhất.", "Detects intent for Photorealism, Anime, 3D Render, or Minimalist to apply the optimal style filters."))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
                         }
                     }
                     .padding(.vertical, 4)
-                }
-
-                // Token Hugging Face
-                Section(
-                    header: Text(langManager.tr("Tài khoản Hugging Face (Tùy chọn)", "Hugging Face Account (Optional)")),
-                    footer: Text(langManager.tr("Mặc định ứng dụng kết nối trực tiếp đến cụm máy chủ xử lý không tốn phí. Bạn có thể dán mã token Hugging Face nếu muốn.", "By default the application routes requests through high-speed cloud clusters. You may enter your Hugging Face token optionally."))
-                ) {
-                    SecureField("hf_xxxxxxxxxxxxxxxxxxxxxx", text: $hfToken)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
                 }
 
                 // Phiên bản
@@ -93,7 +108,7 @@ struct SettingsView: View {
                     HStack {
                         Text(langManager.tr("Phiên bản", "Version"))
                         Spacer()
-                        Text("2.5.0")
+                        Text("3.1.0")
                             .foregroundColor(.secondary)
                     }
                     HStack {

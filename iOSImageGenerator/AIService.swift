@@ -76,14 +76,27 @@ enum AIService {
         prompt: String,
         model: AIModelType,
         aspectRatio: AspectRatio,
-        hfToken: String? = nil
+        hfToken: String? = nil,
+        customServerUrl: String? = nil
     ) async throws -> UIImage {
         let cleanPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanPrompt.isEmpty else {
             throw NSError(domain: "AIService", code: 400, userInfo: [NSLocalizedDescriptionKey: "Prompt cannot be empty"])
         }
 
-        // On-Device Apple Intelligence path (only when explicitly selected and available)
+        // 1. On-Device Semantic Prompt Enhancement (translates & enriches Vietnamese / short prompts)
+        let enhancedPrompt = PromptEngine.enhancePrompt(rawPrompt: cleanPrompt, model: model)
+        let dims = aspectRatio.dimensions
+        let seed = Int.random(in: 1...99999999)
+
+        // 2. Custom Local / Private Server (Automatic1111 / ComfyUI / Forge on user's PC or cloud)
+        if let server = customServerUrl?.trimmingCharacters(in: .whitespacesAndNewlines), !server.isEmpty {
+            if let customImage = try? await callCustomServer(serverUrl: server, prompt: enhancedPrompt, width: dims.width, height: dims.height) {
+                return customImage
+            }
+        }
+
+        // 3. Apple Intelligence path (only when explicitly selected and hardware supports it)
         if model == .appleIntelligence {
             #if canImport(ImagePlayground)
             if #available(iOS 18.4, *) {
@@ -94,47 +107,74 @@ enum AIService {
             #endif
         }
 
-        let dims = aspectRatio.dimensions
-        let seed = Int.random(in: 1...9999999)
-
-        // Try direct Hugging Face Inference API if user provided an HF Token
-        if let token = hfToken?.trimmingCharacters(in: .whitespacesAndNewlines), !token.isEmpty {
-            if let image = try? await callHuggingFaceAPI(prompt: cleanPrompt, token: token) {
-                return image
-            }
-        }
-
-        // High-performance Cloud AI Engine (Hugging Face FLUX.1 / SDXL models)
-        return try await callPollinationsEngine(
-            prompt: cleanPrompt,
-            model: model.rawValue,
+        // 4. Direct Cloud Generation using Enhanced Semantic Prompt
+        return try await callDirectEngine(
+            prompt: enhancedPrompt,
             width: dims.width,
             height: dims.height,
             seed: seed
         )
     }
 
-    private static func callPollinationsEngine(
+    private static func callCustomServer(
+        serverUrl: String,
         prompt: String,
-        model: String,
+        width: Int,
+        height: Int
+    ) async throws -> UIImage? {
+        var base = serverUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        if !base.hasPrefix("http://") && !base.hasPrefix("https://") {
+            base = "http://" + base
+        }
+        guard let url = URL(string: "\(base)/sdapi/v1/txt2img") else { return nil }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 180 // Up to 3 minutes for local GPU processing
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let payload: [String: Any] = [
+            "prompt": prompt,
+            "negative_prompt": "blurry, low quality, bad anatomy, deformed limbs, artifacts, watermarks, ugly",
+            "steps": 25,
+            "width": width,
+            "height": height
+        ]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return nil }
+
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let images = json["images"] as? [String],
+           let firstBase64 = images.first,
+           let imageData = Data(base64Encoded: firstBase64),
+           let uiImage = UIImage(data: imageData) {
+            return uiImage
+        }
+
+        return nil
+    }
+
+    private static func callDirectEngine(
+        prompt: String,
         width: Int,
         height: Int,
         seed: Int
     ) async throws -> UIImage {
-        guard let encodedPrompt = prompt.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+        guard let encodedPrompt = prompt.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             throw NSError(domain: "AIService", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid prompt encoding"])
         }
 
-        let modelParam = (model == "apple_intelligence") ? "flux" : model
-        let urlString = "https://image.pollinations.ai/prompt/\(encodedPrompt)?model=\(modelParam)&width=\(width)&height=\(height)&nologo=true&seed=\(seed)"
+        let urlString = "https://image.pollinations.ai/prompt/\(encodedPrompt)?width=\(width)&height=\(height)&seed=\(seed)&nologo=true"
 
         guard let url = URL(string: urlString) else {
             throw NSError(domain: "AIService", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid URL created"])
         }
 
         var request = URLRequest(url: url)
-        request.timeoutInterval = 45
-        request.setValue("StealHexVN/2.0 (iPhone; VanKhoa)", forHTTPHeaderField: "User-Agent")
+        request.timeoutInterval = 60
+        request.setValue("StealHexVN/3.0 (iPhone; VanKhoa)", forHTTPHeaderField: "User-Agent")
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
@@ -147,25 +187,5 @@ enum AIService {
         }
 
         return uiImage
-    }
-
-    private static func callHuggingFaceAPI(prompt: String, token: String) async throws -> UIImage? {
-        let endpoint = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell"
-        guard let url = URL(string: endpoint) else { return nil }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.timeoutInterval = 45
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let payload = ["inputs": prompt]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-            return UIImage(data: data)
-        }
-        return nil
     }
 }
