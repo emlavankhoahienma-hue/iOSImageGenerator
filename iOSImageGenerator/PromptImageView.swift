@@ -48,9 +48,9 @@ struct PromptImageView: View {
                 VStack(spacing: 20) {
                     // Header Subtitle
                     VStack(spacing: 4) {
-                        Text("Image iOSImageGenerator")
+                        Text("iOSImageGenerator")
                             .font(.title2.bold())
-                        Text("By VanKhoaSWIFT • Powered by Apple Intelligence")
+                        Text("Powered by Apple Intelligence")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }

@@ -1,6 +1,6 @@
-# 🧠 Image iOSImageGenerator By VanKhoaSWIFT
+# 🧠 iOSImageGenerator
 
-[![iOS Sideload Build & Release](https://github.com/emlavankhoahienma-hue/Image-iOSImageGenerator-By-VanKhoaSWIFT/actions/workflows/ios-build.yml/badge.svg)](https://github.com/emlavankhoahienma-hue/Image-iOSImageGenerator-By-VanKhoaSWIFT/actions/workflows/ios-build.yml)
+[![iOS Sideload Build & Release](https://github.com/emlavankhoahienma-hue/iOSImageGenerator/actions/workflows/ios-build.yml/badge.svg)](https://github.com/emlavankhoahienma-hue/iOSImageGenerator/actions/workflows/ios-build.yml)
 [![iOS 18.4+](https://img.shields.io/badge/iOS-18.4%2B-blue.svg)](https://developer.apple.com/ios/)
 [![Swift 5.0](https://img.shields.io/badge/Swift-5.0-orange.svg)](https://swift.org)
 [![Xcode 16+](https://img.shields.io/badge/Xcode-16%2B-blueviolet.svg)](https://developer.apple.com/xcode/)
@@ -40,7 +40,7 @@ A native SwiftUI application powered by Apple's on-device **ImagePlayground** fr
 ## 🏗️ Architecture & Project Structure
 
 ```
-Image-iOSImageGenerator-By-VanKhoaSWIFT/
+iOSImageGenerator/
 ├── .github/
 │   └── workflows/
 │       └── ios-build.yml           # Automated macOS 15 + Xcode 16 CI workflow
@@ -50,7 +50,7 @@ Image-iOSImageGenerator-By-VanKhoaSWIFT/
 │   ├── PromptImageView.swift       # SwiftUI UI: Prompt input, style picker, preview & actions
 │   └── Assets.xcassets/            # AppIcon (1024x1024) & Accent colors
 ├── iOSImageGenerator.xcodeproj/
-│   ├── project.pbxproj             # Configured for iOS 18.2, automatic Info.plist generation
+│   ├── project.pbxproj             # Configured for iOS 18.4, automatic Info.plist generation
 │   └── xcshareddata/
 │       └── xcschemes/
 │           └── iOSImageGenerator.xcscheme # Shared scheme for CI/CD builds
@@ -62,8 +62,8 @@ Image-iOSImageGenerator-By-VanKhoaSWIFT/
 ## 🛠️ How to Build & Install
 
 ### Method 1: Sideload pre-built IPA (No Mac required)
-1. Head to the [Releases](https://github.com/emlavankhoahienma-hue/Image-iOSImageGenerator-By-VanKhoaSWIFT/releases) or GitHub Actions Artifacts.
-2. Download `Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa`.
+1. Head to the [Releases](https://github.com/emlavankhoahienma-hue/iOSImageGenerator/releases) or GitHub Actions Artifacts.
+2. Download `iOSImageGenerator.ipa`.
 3. Sideload onto your iPhone using:
    - **TrollStore** (if supported on your iOS version)
    - **Sideloadly** (macOS / Windows via USB/Wi-Fi)
@@ -71,8 +71,8 @@ Image-iOSImageGenerator-By-VanKhoaSWIFT/
 
 ### Method 2: Build locally in Xcode
 ```bash
-git clone https://github.com/emlavankhoahienma-hue/Image-iOSImageGenerator-By-VanKhoaSWIFT.git
-cd Image-iOSImageGenerator-By-VanKhoaSWIFT
+git clone https://github.com/emlavankhoahienma-hue/iOSImageGenerator.git
+cd iOSImageGenerator
 open iOSImageGenerator.xcodeproj
 ```
 Select your Apple Development Team in Signing & Capabilities, connect your iPhone running iOS 18.4+, and click **Run**.
@@ -93,7 +93,7 @@ xcodebuild build \
 
 ## 🚀 Usage
 
-1. Launch **Image iOSImageGenerator By VanKhoaSWIFT** on your iPhone.
+1. Launch **iOSImageGenerator** on your iPhone.
 2. Enter any creative prompt (or pick one of the sample prompts).
 3. Select an artistic style (`Illustration`, `Animation`, or `Sketch`).
 4. Tap **Generate Image**.
@@ -103,8 +103,8 @@ xcodebuild build \
 
 ## 👨‍💻 Author & Credits
 
-- **Original Base Concept**: [Adi Mizrahi (mizadi)](https://github.com/mizadi/iOSImageGenerator)
-- **Enhanced, Sideload & CI/CD Pipeline**: **VanKhoaSWIFT** (`emlavankhoahienma-hue`)
+- **Original Base Concept & Implementation**: [Adi Mizrahi (mizadi)](https://github.com/mizadi/iOSImageGenerator)
+- **CI/CD Pipeline & Modernizations**: [emlavankhoahienma-hue](https://github.com/emlavankhoahienma-hue)
 - **Framework**: Apple ImagePlayground / Apple Intelligence
 
 ---

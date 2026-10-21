@@ -64,8 +64,8 @@ jobs:
         run: |
           mkdir -p Payload
           cp -r build/Release-iphoneos/iOSImageGenerator.app Payload/
-          zip -qry -9 "Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa" Payload/
-          echo "IPA Size: $(du -h Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa | cut -f1)"
+          zip -qry -9 "iOSImageGenerator.ipa" Payload/
+          echo "IPA Size: $(du -h iOSImageGenerator.ipa | cut -f1)"
 
       - name: Package App Bundle (.zip)
         run: |
@@ -76,8 +76,8 @@ jobs:
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Image_iOSImageGenerator_By_VanKhoaSWIFT-IPA
-          path: Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa
+          name: iOSImageGenerator-IPA
+          path: iOSImageGenerator.ipa
 
       - name: Upload App Bundle Artifact
         uses: actions/upload-artifact@v4
@@ -90,21 +90,21 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v1.0.{0}', github.run_number) }}
-          name: ${{ format('Release v1.0.{0} - Image iOSImageGenerator By VanKhoaSWIFT', github.run_number) }}
+          name: ${{ format('Release v1.0.{0} - iOSImageGenerator', github.run_number) }}
           body: |
-            ## 🎨 Image iOSImageGenerator By VanKhoaSWIFT
-            
+            ## 🎨 iOSImageGenerator
+
             Automated CI build powered by Apple Intelligence & ImagePlayground.
-            
+
             ### 📦 Downloads:
-            - **`Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa`**: Unsigned IPA ready to sideload via **Sideloadly**, **TrollStore**, **AltStore**, **Scarlet**, or **Feather**.
+            - **`iOSImageGenerator.ipa`**: Unsigned IPA ready to sideload via **Sideloadly**, **TrollStore**, **AltStore**, **Scarlet**, or **Feather**.
             - **`iOSImageGenerator.app.zip`**: Zipped `.app` bundle for simulator or custom resign toolchains.
-            
+
             ### 📱 Compatibility:
             - Requires iOS 18.4+
             - Compatible with iPhone 15 Pro, 15 Pro Max, iPhone 16 series, and M-series iPads.
           files: |
-            Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa
+            iOSImageGenerator.ipa
             iOSImageGenerator.app.zip
           draft: false
           prerelease: false
