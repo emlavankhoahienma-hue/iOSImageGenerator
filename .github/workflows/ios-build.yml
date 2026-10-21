@@ -1,0 +1,112 @@
+name: iOS Sideload Build & Release
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Unsigned IPA
+    runs-on: macos-15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 16
+        run: |
+          echo "=== Available Xcode versions ==="
+          ls -d /Applications/Xcode*.app 2>/dev/null || true
+          latest=$(ls -d /Applications/Xcode_16*.app /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$latest" ]; then
+            echo "Selecting: $latest"
+            sudo xcode-select -s "$latest/Contents/Developer"
+          else
+            echo "Using default Xcode"
+            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Inspect project schemes and targets
+        run: |
+          xcodebuild -list -project iOSImageGenerator.xcodeproj
+
+      - name: Build iOS App (Release, unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project iOSImageGenerator.xcodeproj \
+            -scheme iOSImageGenerator \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            ONLY_ACTIVE_ARCH=NO \
+            BUILD_DIR=${{ github.workspace }}/build 2>&1 | tee build.log
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ github.run_id }}
+          path: build.log
+
+      - name: Package Unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Release-iphoneos/iOSImageGenerator.app Payload/
+          zip -qry -9 "Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa" Payload/
+          echo "IPA Size: $(du -h Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa | cut -f1)"
+
+      - name: Package App Bundle (.zip)
+        run: |
+          cd build/Release-iphoneos
+          zip -qry -9 "${{ github.workspace }}/iOSImageGenerator.app.zip" iOSImageGenerator.app
+          cd ${{ github.workspace }}
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Image_iOSImageGenerator_By_VanKhoaSWIFT-IPA
+          path: Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa
+
+      - name: Upload App Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOSImageGenerator-App-Bundle
+          path: iOSImageGenerator.app.zip
+
+      - name: Create GitHub Release
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')) && github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v1.0.{0}', github.run_number) }}
+          name: ${{ format('Release v1.0.{0} - Image iOSImageGenerator By VanKhoaSWIFT', github.run_number) }}
+          body: |
+            ## 🎨 Image iOSImageGenerator By VanKhoaSWIFT
+            
+            Automated CI build powered by Apple Intelligence & ImagePlayground.
+            
+            ### 📦 Downloads:
+            - **`Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa`**: Unsigned IPA ready to sideload via **Sideloadly**, **TrollStore**, **AltStore**, **Scarlet**, or **Feather**.
+            - **`iOSImageGenerator.app.zip`**: Zipped `.app` bundle for simulator or custom resign toolchains.
+            
+            ### 📱 Compatibility:
+            - Requires iOS 18.2+
+            - Compatible with iPhone 15 Pro, 15 Pro Max, iPhone 16 series, and M-series iPads.
+          files: |
+            Image_iOSImageGenerator_By_VanKhoaSWIFT.ipa
+            iOSImageGenerator.app.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
