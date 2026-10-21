@@ -89,20 +89,24 @@ jobs:
         if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')) && github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v1.0.{0}', github.run_number) }}
-          name: ${{ format('Release v1.0.{0} - iOSImageGenerator', github.run_number) }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v2.0.{0}', github.run_number) }}
+          name: ${{ format('Release v2.0.{0} - iOSImageGenerator (iPhone XS ➔ 17 Pro Max)', github.run_number) }}
           body: |
-            ## 🎨 iOSImageGenerator
-
-            Automated CI build powered by Apple Intelligence & ImagePlayground.
-
+            ## 🎨 iOSImageGenerator v2.0
+            
+            **Tác giả / Author: VanKhoa** ([@emlavankhoahienma-hue](https://github.com/emlavankhoahienma-hue))  
+            *Based on concept by Adi Mizrahi*
+            
+            ### 🌟 Tính năng mới / What's New:
+            - 📱 **Hỗ trợ từ iPhone XS ➔ 17 Pro Max** (iOS 17.0+).
+            - 🧠 **Mô hình AI đỉnh cao từ Hugging Face**: FLUX.1 Schnell, FLUX.1 Realism, FLUX Anime, SDXL Turbo.
+            - 🍎 **Apple Intelligence**: Khả dụng trên iPhone 15 Pro, 16, 17 chạy iOS 18.4+.
+            - 🌐 **Hỗ trợ Song ngữ Anh - Việt (Bilingual: Tiếng Việt 🇻🇳 & English 🇬🇧)**.
+            - 📐 **Tùy chọn tỉ lệ khung hình**: 1:1 Vuông, 9:16 Dọc (Hình nền iPhone), 16:9 Ngang.
+            
             ### 📦 Downloads:
             - **`iOSImageGenerator.ipa`**: Unsigned IPA ready to sideload via **Sideloadly**, **TrollStore**, **AltStore**, **Scarlet**, or **Feather**.
             - **`iOSImageGenerator.app.zip`**: Zipped `.app` bundle for simulator or custom resign toolchains.
-
-            ### 📱 Compatibility:
-            - Requires iOS 18.4+
-            - Compatible with iPhone 15 Pro, 15 Pro Max, iPhone 16 series, and M-series iPads.
           files: |
             iOSImageGenerator.ipa
             iOSImageGenerator.app.zip
